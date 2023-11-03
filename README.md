@@ -1,6 +1,6 @@
 # nginx
 
-![nginx](https://miro.medium.com/v2/resize:fit:4800/format:webp/0*mjG1YdoT7xPcnznN.jpg)
+![nginx](https://webhostinggeeks.com/blog/wp-content/uploads/2023/05/Nginx_server-1200x705-optimized.png)
 
 ## Getting started
 
