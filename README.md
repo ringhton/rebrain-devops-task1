@@ -1,92 +1,282 @@
-# nginx
+# Nginx
 
 ![nginx](https://webhostinggeeks.com/blog/wp-content/uploads/2023/05/Nginx_server-1200x705-optimized.png)
 
-## Getting started
+## Установка *nginx* на Linux
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Поскольку Nginx доступен в репозиториях Ubuntu по умолчанию, его можно установить из этих репозиториев с помощью системного пакета `apt`.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Так как это первое наше взаимодействие с пакетом системы `apt` в этом сеансе, мы также обновим индекс локальных пакетов, чтобы получить доступ к актуальным спискам пакетов. Затем мы можем восстановить настройку `nginx`:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.rebrainme.com/devops_users_repos/5483/rebrain-devops-task1.git
-git branch -M main
-git push -uf origin main
+sudo apt update
+sudo apt install nginx
+```
+> После принятия процедур `apt` выполнит установку Nginx и других зависимых зависимостей на вашем сервере.
+
+## Настройка брандмауэра
+
+Перед тестированием Nginx необходимо выполнить настройку программного обеспечения брандмауэра, чтобы разрешить доступ к службе. Nginx регистрирует себя как службу с помощью `ufw` после установки, упрощая доступ к Nginx.
+
+Для вывода списка конфигураций приложений, которые известны `ufw`, необходимо ввести следующую команду:
+
+```
+sudo ufw app list
 ```
 
-## Integrate with your tools
+> Необходимо получить список профилей приложений:
 
-- [ ] [Set up project integrations](https://gitlab.rebrainme.com/devops_users_repos/5483/rebrain-devops-task1/-/settings/integrations)
+```
+Output
+Available applications:
+  Nginx Full
+  Nginx HTTP
+  Nginx HTTPS
+  OpenSSH
+```
 
-## Collaborate with your team
+Как показал вывод, есть три профиля, доступных для Nginx:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+1.`Nginx Full`: этот профиль открывает порт 80 (обычный веб-трафик без шифрования) и порт 443 (трафик с шифрованием TLS/SSL)
+1.`Nginx HTTP`: этот профиль открывает только порт 80 (обычный веб-трафик без шифрования)
+1.`Nginx HTTPS`: этот профиль открывает только порт 443 (трафик с шифрованием TLS/SSL)
 
-## Test and Deploy
+Рекомендуется применять самый ограничивающий профиль, который будет разрешать заданный трафик. Сейчас нам нужно будет разрешить трафик на порту 80.
 
-Use the built-in continuous integration in GitLab.
+Для активации можно ввести следующую команду:
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```
+sudo ufw allow 'Nginx HTTP'
+```
 
-***
+Для проверки изменений введите:
 
-# Editing this README
+```
+sudo ufw status
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Вывод укажет, какой трафик HTTP разрешен:
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```
+Output
+Status: active
 
-## Name
-Choose a self-explaining name for your project.
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+Nginx HTTP                 ALLOW       Anywhere 
+OpenSSH (v6)               ALLOW       Anywhere (v6) 
+Nginx HTTP (v6)            ALLOW       Anywhere (v6)
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Проверка веб-сервера
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+В конце процесса установки Ubuntu 20.04 запускает Nginx. Веб-сервер уже должен быть запущен и работать.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Используйте команду `systemd init system`, чтобы проверить работу службы:
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```
+systemctl status nginx
+Output
+● nginx.service - A high performance web server and a reverse proxy server
+   Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+   Active: active (running) since Fri 2020-04-20 16:08:19 UTC; 3 days ago
+     Docs: man:nginx(8)
+ Main PID: 2369 (nginx)
+    Tasks: 2 (limit: 1153)
+   Memory: 3.5M
+   CGroup: /system.slice/nginx.service
+           ├─2369 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+           └─2380 nginx: worker process
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Вывод подтвердили, что служба успешно запущена. Однако лучше всего протестировать ее запуск посредством запроса страницы из Nginx.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Откройте страницу Nginx по умолчанию, чтобы подтвердить работу программного обеспечения через IP-адрес вашего сервера. Если вы не знаете IP-адрес вашего сервера, вы можете найти его с помощью инструмента [icanhazip.com](https://ipv4.icanhazip.com/) , который выдаст вам ваш публичный IP-адрес, полученный от другого расположения в Интернете:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```
+curl -4 icanhazip.com
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Когда вы узнаете IP-адрес вашего сервера, введите его в адресную строку браузера:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+*http://`your_server_ip`*
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Вы должны увидеть эту страницу:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+![welcom to nginx](https://ubuntucommunity.s3.dualstack.us-east-2.amazonaws.com/original/2X/7/7504d83a9fe8c09d861b2f7c49e144ac773f0c0d.png)
 
-## License
-For open source projects, say how it is licensed.
+> Если вы видите эту страницу, вы успешно установили Nginx на свой веб-сервер.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Управление процессом Nginx
+
+Ваш веб-сервер запущен и работает, и теперь мы изучим некоторые базовые команды управления.
+
+Чтобы остановить веб-сервер, введите:
+
+```
+sudo systemctl stop nginx
+```
+
+Чтобы запустить остановленный веб-сервер, введите:
+
+```
+sudo systemctl start nginx
+```
+
+Чтобы остановить и снова запустить службу, введите:
+
+```
+sudo systemctl restart nginx
+```
+
+Если вы просто вносите изменения в конфигурацию, во многих случаях Nginx может перезагружаться без отключения соединений. Для этого введите:
+
+```
+sudo systemctl reload nginx
+```
+
+По умолчанию Nginx настроен на автоматический запуск при загрузке сервера. Если вы не хотите этого, вы можете отключить такое поведение с помощью следующей команды:
+
+```
+sudo systemctl disable nginx
+```
+
+Чтобы перезагрузить службу для запуска во время загрузки, введите:
+
+```
+sudo systemctl enable nginx
+```
+Вы научились выполнять базовые команды управления и должны быть готовы настроить сайт для размещения сразу нескольких доменов.
+
+## Настройка блоков сервера (рекомендуется)
+
+В Nginx на Ubuntu 20.04 по умолчанию включен один серверный блок, настроенный для вывода документов из директории /var/www/html. Хотя это хорошо работает для отдельного сайта, при хостинге нескольких сайтов это неудобно. Вместо изменения /var/www/html мы создадим в /var/www структуру директорий для нашего сайта your_domain, оставив /var/www/html как директорию по умолчанию для вывода в случае, если запросу клиента не соответствуют никакие другие сайты.
+
+Создайте директорию для `your_domain` следующим образом, используя флаг `-p` для создания необходимых родительских директорий:
+
+```
+sudo mkdir -p /var/www/your_domain/html
+```
+
+Затем назначьте владение директорией с помощью переменной среды *$USER*:
+
+```
+sudo chown -R $USER:$USER /var/www/your_domain/html
+```
+
+Разрешения корневых директорий веб-сервера должны быть правильными, если вы не изменяли значение unmask, которое устанавливает разрешения файла по умолчанию. Чтобы убедиться, что разрешения корректны, позволить владельцу читать, писать и запускать файлы, а группам и другим пользователям разрешить только читать и запускать файлы, вы можете ввести следующую команду:
+
+```
+sudo chmod -R 755 /var/www/your_domain
+```
+
+Затем создайте в качестве примера страницу *index.html*, используя *nano* или свой любимый редактор:
+
+```
+nano /var/www/your_domain/html/index.html
+```
+
+Добавьте в страницу следующий образец кода HTML:
+
+> /var/www/your_domain/html/index.html
+> <html>
+>     <head>
+>         <title>Welcome to your_domain!</title>
+>     </head>
+>     <body>
+>         <h1>Success!  The your_domain server block is working!</h1>
+>     </body>
+> </html>
+
+Сохраните и закройте файл с помощью ввода CTRL и X, а затем Y и ENTER после завершения работы.
+
+Для обслуживания этого контента Nginx необходимо создать серверный блок с правильными директивами. Вместо того чтобы изменять файл конфигурации по умолчанию напрямую, мы создадим новый файл в директории `/etc/nginx/sites-available/your_domain`:
+
+```
+sudo nano /etc/nginx/sites-available/your_domain
+```
+
+Введите следующий блок конфигурации, который похож на заданный по умолчанию, но обновлен с учетом новой директории и доменного имени:
+
+> /etc/nginx/sites-available/your_domain
+> server {
+>         listen 80;
+>         listen [::]:80;
+> 
+>         root /var/www/your_domain/html;
+>         index index.html index.htm index.nginx-debian.html;
+> 
+>         server_name your_domain www.your_domain;
+> 
+>         location / {
+>                 try_files $uri $uri/ =404;
+>         }
+> }
+
+Мы обновили конфигурацию *root* с указанием новой директории и заменили **server_name** на имя нашего домена.
+
+Теперь мы активируем файл, создав ссылку в директории `sites-enabled`, который Nginx считывает при запуске:
+
+```
+sudo ln -s /etc/nginx/sites-available/your_domain /etc/nginx/sites-enabled/
+```
+
+Два серверных блока активированы и настроены для реагирования на запросы на основе директив *listen* и *server_name* (дополнительную информацию об обработке Nginx этих директив можно найти здесь):
+
+> your_domain: будет отвечать на запросы your_domain и www.your_domain.
+> default: будет отвечать на любые запросы порта 80, не соответствующие двум другим блокам.
+
+Чтобы избежать возможной проблемы с хэшированием памяти при добавлении дополнительных имен серверов, необходимо изменить одно значение в файле */etc/nginx/[nginx.conf](./nginx.conf)*. Откройте файл:
+
+```
+sudo nano /etc/nginx/nginx.conf
+```
+
+Найдите директиву *server_names_hash_bucket_size* и удалите символ #, чтобы раскомментировать строку. Если вы используете nano, вы можете быстро найти слова в файле, нажав CTRL и w.
+
+> /etc/nginx/nginx.conf
+> ...
+> http {
+>     ...
+>     server_names_hash_bucket_size 64;
+>     ...
+> }
+> ...
+
+Сохраните файл и закройте его после завершения.
+
+Проведите тестирования, чтобы убедиться в отсутствии ошибок синтаксиса в файлах Nginx:
+
+```
+sudo nginx -t
+```
+
+Если проблемы отсутствуют, перезапустите Nginx, чтобы активировать изменения:
+
+```
+sudo systemctl restart nginx
+```
+
+Теперь Nginx должен обслуживать ваше доменное имя. Вы можете проверить это, открыв в браузере адрес http://example.com, после чего должны увидеть примерно следующее:
+
+![success](https://assets.digitalocean.com/articles/nginx_server_block_1404/first_block.png)
+
+## Знакомство с важными файлами и директориями Nginx
+
+Теперь вы научились управлять службой Nginx, и настало время познакомиться с несколькими важными директориями и файлами.
+
+Контент
+- /var/www/html: веб-контент, в состав которого по умолчанию входит только показанная ранее страница Nginx по умолчанию, выводится из директории /var/www/html. Это можно изменить путем изменения файлов конфигурации Nginx.
+
+Конфигурация сервера
+- /etc/nginx: директория конфигурации Nginx. Здесь хранятся все файлы конфигурации Nginx.
+- /etc/nginx/nginx.conf: основной файл конфигурации Nginx. Его можно изменить для внесения изменений в глобальную конфигурацию Nginx.
+- /etc/nginx/sites-available/: директория, где могут храниться серверные блоки для каждого сайта. Nginx не будет использовать файлы конфигурации из этой директории, если они не будут связаны с директорией sites-enabled. Обычно конфигурации серверных блоков записываются в эту директорию и активируются посредством ссылки на другую директорию.
+- /etc/nginx/sites-enabled/: директория, где хранятся активные серверные блоки каждого узла. Они созданы посредством ссылки на файлы конфигурации в директории sites-available.
+- /etc/nginx/snippets: в этой директории содержатся фрагменты конфигурации, которые можно включить в конфигурацию Nginx. Воспроизводимые сегменты конфигурации хорошо подходят для преобразования в сниппеты.
+
+Журналы сервера
+- /var/log/nginx/access.log: каждый запрос к вашему веб-серверу регистрируется в этом файле журнала, если Nginx не настроен иначе.
+- /var/log/nginx/error.log: любые ошибки Nginx будут регистрироваться в этом журнале.
+
