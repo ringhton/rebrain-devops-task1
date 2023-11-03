@@ -1,6 +1,6 @@
-# rebrain-devops-task1
+# nginx
 
-
+![nginx](https://miro.medium.com/v2/resize:fit:4800/format:webp/0*mjG1YdoT7xPcnznN.jpg)
 
 ## Getting started
 
