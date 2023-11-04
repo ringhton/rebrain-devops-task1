@@ -226,6 +226,7 @@ sudo ln -s /etc/nginx/sites-available/your_domain /etc/nginx/sites-enabled/
 ```
 
 > [!NOTE]
+
 > Два серверных блока активированы и настроены для реагирования на запросы на основе директив *listen* и *server_name* (дополнительную информацию об обработке Nginx этих директив можно найти здесь):
 
 | Sites       | Answers                                                                         |
